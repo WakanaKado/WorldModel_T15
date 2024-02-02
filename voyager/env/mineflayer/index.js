@@ -2,6 +2,7 @@ const fs = require("fs");
 const express = require("express");
 const bodyParser = require("body-parser");
 const mineflayer = require("mineflayer");
+// const screenshot = require('screenshot-desktop'); //screenショットにより追加
 
 const skills = require("./lib/skillLoader");
 const { initCounter, getNextTime } = require("./lib/utils");
@@ -50,6 +51,9 @@ app.post("/start", (req, res) => {
     });
 
     bot.once("spawn", async () => {
+        bot.chat("/spectate bot maroinu_LLM"); //botを常に監視
+        bot.chat("/effect give maroinu_LLM minecraft:night_vision"); // botに暗視の効果付与
+
         bot.removeListener("error", onConnectionFailed);
         let itemTicks = 1;
         if (req.body.reset === "hard") {
@@ -405,12 +409,39 @@ app.post("/stop", (req, res) => {
     });
 });
 
+
+//screenショット関数
+const path = require('path');
+const imagesDir = path.join(__dirname, 'images');
+if (!fs.existsSync(imagesDir)) {
+    fs.mkdirSync(imagesDir);
+}
+
+function takeScreenshot() {
+    const filename = path.join(imagesDir, `screenshot_${new Date().toISOString().replace(/:/g, '-')}.png`);
+    screenshot({ filename: filename }).then((imgPath) => {
+        console.log(`Saved screenshot: ${imgPath}`);
+    }).catch((err) => {
+        console.error('Error taking screenshot:', err);
+    });
+}
+
+
+
+
 app.post("/pause", (req, res) => {
     if (!bot) {
         res.status(400).json({ error: "Bot not spawned" });
         return;
     }
     bot.chat("/pause");
+    bot.chat("/spectate bot maroinu_LLM"); //botを常に監視
+    bot.chat("/effect give maroinu_LLM minecraft:night_vision 1000000"); // botに暗視の効果付与
+    
+    // takeScreenshot();//メインディスプレイを取得
+    // bot.chat("get the image");//取得確認
+
+
     bot.waitForTicks(bot.waitTicks).then(() => {
         res.json({ message: "Success" });
     });

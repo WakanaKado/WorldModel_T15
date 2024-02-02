@@ -11,6 +11,89 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.schema import HumanMessage, SystemMessage
 from langchain.vectorstores import Chroma
 
+# 画像取得
+import os
+from PIL import ImageGrab
+from datetime import datetime
+def take_screenshot_and_save():
+    """
+    スクリーンショットを取り、'images'フォルダに保存し、ファイル名を返す関数。
+
+    :return: 保存されたスクリーンショットのファイル名
+    """
+    # 'images'フォルダがなければ作成
+    if not os.path.exists('images'):
+        os.makedirs('images')
+
+    # ファイル名を生成
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"images/minecraft_screenshot_{timestamp}.png"
+
+    # スクリーンショットを取る
+    screenshot = ImageGrab.grab()
+
+    # スクリーンショットをファイルに保存
+    screenshot.save(filename)
+
+    # 生成されたファイル名を返す
+    return filename
+
+# 画像活用
+import base64
+import requests
+import os
+import glob
+
+# OpenAI API Key
+api_key = "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"
+
+# Function to encode the image
+def encode_image(image_path):
+  with open(image_path, "rb") as image_file:
+    return base64.b64encode(image_file.read()).decode('utf-8')
+
+
+# 最終変更時間に基づいて最も新しいファイルを見つける
+# image_path = take_screenshot_and_save()
+
+# Getting the base64 string
+base64_image = encode_image(take_screenshot_and_save())
+
+headers = {
+  "Content-Type": "application/json",
+  "Authorization": f"Bearer {api_key}"
+}
+
+payload = {
+  "model": "gpt-4-vision-preview",
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "You are a great assistant to infer information from images.\
+                  This image is a Minecraft play screen. \
+                  My ultimate goal is to create a gold pickaxe.\
+                  Please guess what information you think would be useful to the player \
+                  and give the information by reading that information from the image.\
+                  If the image is unclear, please just answer N/A.\
+                  Here's an example response.\
+                  Reasoning:\
+                  Information: "
+
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": f"data:image/jpeg;base64,{base64_image}"
+          }
+        }
+      ]
+    }
+  ],
+  "max_tokens": 400
+}
 
 class CurriculumAgent:
     def __init__(
@@ -87,6 +170,9 @@ class CurriculumAgent:
         self.warm_up["inventory"] = 0
         self.warm_up["completed_tasks"] = 0
         self.warm_up["failed_tasks"] = 0
+        
+        #訪れたバイオームを記録する新しいセット属性を追加
+        self.visited_biomes = set()
 
     @property
     def default_warmup(self):
@@ -134,7 +220,15 @@ class CurriculumAgent:
     def render_system_message(self):
         system_message = SystemMessage(content=load_prompt("curriculum"))
         assert isinstance(system_message, SystemMessage)
+        
         return system_message
+
+    ### 世界モデル検証
+    def render_system_message2(self):
+        system_message2 = SystemMessage(content=load_prompt("curriculum2"))
+        assert isinstance(system_message2, SystemMessage)
+        
+        return system_message2
 
     def render_observation(self, *, events, chest_observation):
         assert events[-1][0] == "observe", "Last event must be observe"
@@ -150,6 +244,19 @@ class CurriculumAgent:
         equipment = event["status"]["equipment"]
         inventory_used = event["status"]["inventoryUsed"]
         inventory = event["inventory"]
+        
+        # 訪れたバイオームを追加
+        self.visited_biomes.add(biome)
+        # 訪れたバイオームのリストをテキスト形式で生成
+        visited_biomes_text = ", ".join(sorted(self.visited_biomes))
+        
+        # 取得した画像をgpt-4-visionに投げる
+        image_path = take_screenshot_and_save()
+        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+        data = response.json()
+        capture_info = data['choices'][0]['message']['content']
+        print(image_path + 'の画像から読み取ったデータ')
+        print(capture_info)
 
         if not any(
             "dirt" in block
@@ -203,6 +310,11 @@ class CurriculumAgent:
             "chests": chest_observation,
             "completed_tasks": f"Completed tasks so far: {completed_tasks}\n\n",
             "failed_tasks": f"Failed tasks that are too hard: {failed_tasks}\n\n",
+            # 訪れたバイオームの情報を追加
+            "visited_biomes": f"Visited Biomes: {visited_biomes_text}\n\n",
+            # 取得画像からの情報を追加
+            "capture_info": f"Capture info: {capture_info}\n\n"
+            
         }
         return observation
 
@@ -241,6 +353,8 @@ class CurriculumAgent:
         if self.progress == 0 and self.mode == "auto":
             task = "Mine 1 wood log"
             context = "You can mine one of oak, birch, spruce, jungle, acacia, dark oak, or mangrove logs."
+            # task = "Discover a new biome"
+            # context = "You can discover new one by exploring large areas"
             return task, context
 
         # hard code task when inventory is almost full
@@ -281,8 +395,17 @@ class CurriculumAgent:
                 events=events, chest_observation=chest_observation
             ),
         ]
+        
+        # 世界モデル検証
+        messages2 = [
+            self.render_system_message2(),
+            self.render_human_message(
+                events=events, chest_observation=chest_observation
+            ),
+        ]
 
         if self.mode == "auto":
+            self.propose_next_ai_task2(messages=messages2, max_retries=max_retries)
             return self.propose_next_ai_task(messages=messages, max_retries=max_retries)
         elif self.mode == "manual":
             return self.propose_next_manual_task()
@@ -307,6 +430,15 @@ class CurriculumAgent:
                 messages=messages,
                 max_retries=max_retries - 1,
             )
+            
+    ## 世界モデル検証        
+    def propose_next_ai_task2(self, *, messages, max_retries=5):
+        if max_retries == 0:
+            raise RuntimeError("Max retries reached, failed to propose ai task.")
+        curriculum2 = self.llm(messages).content
+        print(f"\033[31m****Curriculum Agent ai message of virtual world model****\n{curriculum2}\033[0m")
+        
+        
 
     def parse_ai_message(self, message):
         task = ""
