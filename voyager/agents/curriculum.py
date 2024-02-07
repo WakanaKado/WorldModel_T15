@@ -15,6 +15,7 @@ from langchain.vectorstores import Chroma
 import os
 from PIL import ImageGrab
 from datetime import datetime
+
 def take_screenshot_and_save():
     """
     スクリーンショットを取り、'images'フォルダに保存し、ファイル名を返す関数。
@@ -44,56 +45,73 @@ import requests
 import os
 import glob
 
-# OpenAI API Key
-api_key = "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"
-
 # Function to encode the image
 def encode_image(image_path):
-  with open(image_path, "rb") as image_file:
-    return base64.b64encode(image_file.read()).decode('utf-8')
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
+
+def create_gpt4vision_answer(image_path):
+    # OpenAI API Key
+    api_key = "ここにAPIキーを入力"
 
 
-# 最終変更時間に基づいて最も新しいファイルを見つける
-# image_path = take_screenshot_and_save()
+    # 最終変更時間に基づいて最も新しいファイルを見つける
+    # image_path = take_screenshot_and_save()
 
-# Getting the base64 string
-base64_image = encode_image(take_screenshot_and_save())
+    # Getting the base64 string
+    base64_image = encode_image(image_path)
 
-headers = {
-  "Content-Type": "application/json",
-  "Authorization": f"Bearer {api_key}"
-}
-
-payload = {
-  "model": "gpt-4-vision-preview",
-  "messages": [
-    {
-      "role": "user",
-      "content": [
-        {
-          "type": "text",
-          "text": "You are a great assistant to infer information from images.\
-                  This image is a Minecraft play screen. \
-                  My ultimate goal is to create a gold pickaxe.\
-                  Please guess what information you think would be useful to the player \
-                  and give the information by reading that information from the image.\
-                  If the image is unclear, please just answer N/A.\
-                  Here's an example response.\
-                  Reasoning:\
-                  Information: "
-
-        },
-        {
-          "type": "image_url",
-          "image_url": {
-            "url": f"data:image/jpeg;base64,{base64_image}"
-          }
-        }
-      ]
+    headers = {
+    "Content-Type": "application/json",
+    "Authorization": f"Bearer {api_key}"
     }
-  ],
-  "max_tokens": 400
-}
+
+    payload = {
+        "model": "gpt-4-vision-preview",
+        "messages": [
+            {
+            "role": "user",
+            "content": [
+                {
+                "type": "text",
+                "text": "You are a great assistant to infer information from images.\
+                            This image is a Minecraft play screen. \
+                            Please guess the biome, time, nearby blocks, and nearby entities from this image.\
+                            \
+                            You must follow the following criteria:\
+                            1) You should act as an assistant and tell me useful information to survive or achieve the ultimate goal.\
+                            2) If the image is unclear, please just answer N/A for each category. Do not mention anything else.\
+                            3) Please just inform the fact read from the image.\
+                            \
+                            You should only respond in the format as described below:\
+                            RESPONSE FORMAT:\
+                            Biome: Please guess the biome from this image.\
+                            Time: Please guess the time from this image. You should respond with either day or night.\
+                            Nearby blocks: Please guess the nearby blocks. You should answer only blocks that can be read from the image.\
+                            Nearby entities (nearest to farthest): Please guess the nearby entities. You should answer only entities that can be read from the image.\
+                            \
+                            Here's an example response:\
+                                Biome: meadow\
+                                Time: day\
+                                Nearby blocks: grass_block, dirt, grass, tall_grass, stone, andesite\
+                                Nearby entities (nearest to farthest): pig, chicken\
+                            "
+
+                },
+                {
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:image/jpeg;base64,{base64_image}"
+                }
+                }
+            ]
+            }
+        ],
+        "max_tokens": 400
+        }
+    response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+    
+    return response.json()
 
 class CurriculumAgent:
     def __init__(
@@ -250,13 +268,28 @@ class CurriculumAgent:
         # 訪れたバイオームのリストをテキスト形式で生成
         visited_biomes_text = ", ".join(sorted(self.visited_biomes))
         
-        # 取得した画像をgpt-4-visionに投げる
-        image_path = take_screenshot_and_save()
-        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-        data = response.json()
-        capture_info = data['choices'][0]['message']['content']
-        print(image_path + 'の画像から読み取ったデータ')
-        print(capture_info)
+        # # 取得した画像をgpt-4-visionに投げる
+        # image_path = take_screenshot_and_save()
+        # data = create_gpt4vision_answer(image_path)
+        # capture_info = data['choices'][0]['message']['content']
+        # print(image_path + 'の画像から読み取ったデータ')
+        # print(capture_info)
+        
+        # # 空の辞書を用意して、各行を解析
+        # info_dict = {}
+        # for line in capture_info.strip().split('\n'):
+        #     # コロン(:)でキーと値を分割
+        #     key, value = line.split(':', 1)
+        #     # 辞書にキーと値を格納
+        #     info_dict[key.strip()] = value.strip()
+
+        # # 辞書から必要な情報を取り出す
+        # biome2 = info_dict.get('Biome')
+        # time_of_day2 = info_dict.get('Time')
+        # voxels2 = info_dict.get('Nearby blocks')
+        # nearby_entities2 = info_dict.get('Nearby entities (nearest to farthest)')
+        
+        
 
         if not any(
             "dirt" in block
@@ -300,6 +333,7 @@ class CurriculumAgent:
             "biome": f"Biome: {biome}\n\n",
             "time": f"Time: {time_of_day}\n\n",
             "nearby_blocks": f"Nearby blocks: {', '.join(voxels) if voxels else 'None'}\n\n",
+            # "nearby_blocks": f"Nearby blocks: {voxels2}\n\n",
             "other_blocks": f"Other blocks that are recently seen: {other_blocks}\n\n",
             "nearby_entities": f"Nearby entities: {nearby_entities}\n\n",
             "health": f"Health: {health:.1f}/20\n\n",
@@ -313,7 +347,7 @@ class CurriculumAgent:
             # 訪れたバイオームの情報を追加
             "visited_biomes": f"Visited Biomes: {visited_biomes_text}\n\n",
             # 取得画像からの情報を追加
-            "capture_info": f"Capture info: {capture_info}\n\n"
+            # "capture_info": f"Capture info: {capture_info}\n\n"
             
         }
         return observation

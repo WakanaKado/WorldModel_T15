@@ -7,11 +7,11 @@ from voyager import Voyager
 #     "secret_value": "[OPTIONAL] YOUR_SECRET_VALUE",
 #     "version": "fabric-loader-0.14.18-1.19", # the version Voyager is tested on
 # }
-openai_api_key = "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"
+openai_api_key = "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"
 
 voyager = Voyager(
     openai_api_key= openai_api_key,
-    mc_port= 61986,
+    mc_port= 53977,
     # ckpt_dir="save",
     resume = False,
     

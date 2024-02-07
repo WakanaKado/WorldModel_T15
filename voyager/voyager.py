@@ -174,7 +174,7 @@ class Voyager:
                 }
             )
         difficulty = (
-            "hard"
+            "normal"
             # "easy" if len(self.curriculum_agent.completed_tasks) > 15 else "peaceful"
         )
         # step to peek an observation

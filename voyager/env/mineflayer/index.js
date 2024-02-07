@@ -53,6 +53,7 @@ app.post("/start", (req, res) => {
     bot.once("spawn", async () => {
         bot.chat("/spectate bot maroinu_LLM"); //botを常に監視
         bot.chat("/effect give maroinu_LLM minecraft:night_vision"); // botに暗視の効果付与
+        bot.chat("/time set 13000"); //時刻を19:00に設定
 
         bot.removeListener("error", onConnectionFailed);
         let itemTicks = 1;
@@ -135,7 +136,7 @@ app.post("/start", (req, res) => {
 
         initCounter(bot);
         bot.chat("/gamerule keepInventory true");
-        bot.chat("/gamerule doDaylightCycle false");
+        // bot.chat("/gamerule doDaylightCycle false"); //サーバー上の時間を固定している
     });
 
     function onConnectionFailed(e) {
