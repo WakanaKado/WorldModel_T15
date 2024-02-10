@@ -75,22 +75,27 @@ def create_gpt4vision_answer(image_path):
                 {
                 "type": "text",
                 "text": "You are a great assistant to infer information from images.\
-                            This image is a Minecraft play screen. \
-                            My ultimate goal is to create a gold pickaxe.\
-                            Please guess what information you think would be useful to the player \
-                            and give the information by reading that information from the image.\
-                            \
-                            You must follow the following criteria:\
-                            1) You should act as an assistant and tell me useful information to survive or achieve the ultimate goal.\
-                            2) If the image is unclear, please just answer N/A. Do not mention anything else.\
-                            3) Do not suggest any task. Please just inform the fact read from the image.\
-                            \
-                            You should only respond in the format as described below:\
-                            RESPONSE FORMAT:\
-                                Reasoning:\
-                                Information: "
-
-
+                    This image is a Minecraft play screen. \
+                    Please guess the biome, time, nearby blocks, and nearby entities from this image.\
+                    \
+                    You must follow the following criteria:\
+                    1) You should act as an assistant and tell me useful information to survive or achieve the ultimate goal.\
+                    2) If the image is unclear, please just answer N/A for each category. Do not mention anything else.\
+                    3) Please just inform the fact read from the image.\
+                    \
+                    You should only respond in the format as described below:\
+                    RESPONSE FORMAT:\
+                        Biome: Please guess the biome from this image.\
+                        Time: Please guess the time from this image. You should respond with either day or night.\
+                        Nearby blocks: Please guess the nearby blocks as many as possible. You should answer only blocks that can be read from the image.\
+                        Nearby entities (nearest to farthest): Please guess the nearby entities as many as possible. You should answer only entities that can be read from the image.\
+                    \
+                    Here's an example response:\
+                        Biome: meadow\
+                        Time: day\
+                        Nearby blocks: grass_block, dirt, grass, tall_grass, stone, andesite\
+                        Nearby entities (nearest to farthest): pig, chicken\
+                    "
                 },
                 {
                 "type": "image_url",
