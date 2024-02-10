@@ -269,19 +269,19 @@ class CurriculumAgent:
         print(image_path + 'の画像から読み取ったデータ')
         print(capture_info)
         
-        # # 空の辞書を用意して、各行を解析
-        # info_dict = {}
-        # for line in capture_info.strip().split('\n'):
-        #     # コロン(:)でキーと値を分割
-        #     key, value = line.split(':', 1)
-        #     # 辞書にキーと値を格納
-        #     info_dict[key.strip()] = value.strip()
+        # 空の辞書を用意して、各行を解析
+        info_dict = {}
+        for line in capture_info.strip().split('\n'):
+            # コロン(:)でキーと値を分割
+            key, value = line.split(':', 1)
+            # 辞書にキーと値を格納
+            info_dict[key.strip()] = value.strip()
 
-        # # 辞書から必要な情報を取り出す
-        # biome2 = info_dict.get('Biome')
-        # time_of_day2 = info_dict.get('Time')
-        # voxels2 = info_dict.get('Nearby blocks')
-        # nearby_entities2 = info_dict.get('Nearby entities (nearest to farthest)')
+        # 辞書から必要な情報を取り出す
+        biome2 = info_dict.get('Biome')
+        time_of_day2 = info_dict.get('Time')
+        voxels2 = info_dict.get('Nearby blocks')
+        nearby_entities2 = info_dict.get('Nearby entities (nearest to farthest)')
         
         # biome3 = None
         # time_of_day3 = None
@@ -330,11 +330,12 @@ class CurriculumAgent:
 
         observation = {
             "context": "",
-            "biome": f"Biome: ",
-            "time": f"Time: ",
-            "nearby_blocks": f"Nearby blocks: ",
-            "other_blocks": f"Other blocks that are recently seen: ",
-            "nearby_entities": f"Nearby entities: ",
+            "biome": f"Biome: {biome2}\n\n",
+            "time": f"Time: {time_of_day2}\n\n",
+            "nearby_blocks": f"Nearby blocks: {', '.join(voxels) if voxels else 'None'}\n\n",
+            "nearby_blocks": f"Nearby blocks: {voxels2}\n\n",
+            "other_blocks": f"Other blocks that are recently seen: {other_blocks}\n\n",
+            "nearby_entities": f"Nearby entities: {nearby_entities2}\n\n",
             "health": f"Health: {health:.1f}/20\n\n",
             "hunger": f"Hunger: {hunger:.1f}/20\n\n",
             "position": f"Position: x={position['x']:.1f}, y={position['y']:.1f}, z={position['z']:.1f}\n\n",
@@ -343,8 +344,7 @@ class CurriculumAgent:
             "chests": chest_observation,
             "completed_tasks": f"Completed tasks so far: {completed_tasks}\n\n",
             "failed_tasks": f"Failed tasks that are too hard: {failed_tasks}\n\n",
-            "visited_biomes": f"Visited Biomes: {visited_biomes_text}\n\n",     
-            "capture_info": f"Capture info: {capture_info}\n\n"      
+            "visited_biomes": f"Visited Biomes: {visited_biomes_text}\n\n",
         }
         return observation
 
