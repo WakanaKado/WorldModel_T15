@@ -52,7 +52,7 @@ def encode_image(image_path):
 
 def create_gpt4vision_answer(image_path):
     # OpenAI API Key
-    api_key = "ここにAPIキーを入力"
+    api_key = "１については必要なし"
 
 
     # 最終変更時間に基づいて最も新しいファイルを見つける
@@ -116,7 +116,7 @@ def create_gpt4vision_answer(image_path):
 class CurriculumAgent:
     def __init__(
         self,
-        model_name="gpt-3.5-turbo",
+        model_name="gpt-4",
         temperature=0,
         qa_model_name="gpt-3.5-turbo",
         qa_temperature=0,
@@ -289,6 +289,12 @@ class CurriculumAgent:
         # voxels2 = info_dict.get('Nearby blocks')
         # nearby_entities2 = info_dict.get('Nearby entities (nearest to farthest)')
         
+        # biome3 = None
+        # time_of_day3 = None
+        # voxels3 = None
+        # nearby_entities3 = None
+        
+        
         
 
         if not any(
@@ -330,12 +336,11 @@ class CurriculumAgent:
 
         observation = {
             "context": "",
-            "biome": f"Biome: {biome}\n\n",
-            "time": f"Time: {time_of_day}\n\n",
-            "nearby_blocks": f"Nearby blocks: {', '.join(voxels) if voxels else 'None'}\n\n",
-            # "nearby_blocks": f"Nearby blocks: {voxels2}\n\n",
-            "other_blocks": f"Other blocks that are recently seen: {other_blocks}\n\n",
-            "nearby_entities": f"Nearby entities: {nearby_entities}\n\n",
+            "biome": f"Biome: ",
+            "time": f"Time: ",
+            "nearby_blocks": f"Nearby blocks: ",
+            "other_blocks": f"Other blocks that are recently seen: ",
+            "nearby_entities": f"Nearby entities: ",
             "health": f"Health: {health:.1f}/20\n\n",
             "hunger": f"Hunger: {hunger:.1f}/20\n\n",
             "position": f"Position: x={position['x']:.1f}, y={position['y']:.1f}, z={position['z']:.1f}\n\n",
@@ -344,11 +349,7 @@ class CurriculumAgent:
             "chests": chest_observation,
             "completed_tasks": f"Completed tasks so far: {completed_tasks}\n\n",
             "failed_tasks": f"Failed tasks that are too hard: {failed_tasks}\n\n",
-            # 訪れたバイオームの情報を追加
-            "visited_biomes": f"Visited Biomes: {visited_biomes_text}\n\n",
-            # 取得画像からの情報を追加
-            # "capture_info": f"Capture info: {capture_info}\n\n"
-            
+            "visited_biomes": f"Visited Biomes: {visited_biomes_text}\n\n",            
         }
         return observation
 

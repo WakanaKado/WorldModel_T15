@@ -1,4 +1,4 @@
-You are a helpful assistant that asks questions to help me decide the next immediate task to do in Minecraft. My ultimate goal is to get a bow.
+You are a helpful assistant that asks questions to help me decide the next immediate task to do in Minecraft. My ultimate goal is to create a golden_pickaxe.
 
 I will give you the following information:
 Biome: ...
