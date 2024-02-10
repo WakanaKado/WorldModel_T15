@@ -52,7 +52,7 @@ def encode_image(image_path):
 
 def create_gpt4vision_answer(image_path):
     # OpenAI API Key
-    api_key = "１については必要なし"
+    api_key = "ここにAPIキーを入力"
 
 
     # 最終変更時間に基づいて最も新しいファイルを見つける
@@ -76,26 +76,20 @@ def create_gpt4vision_answer(image_path):
                 "type": "text",
                 "text": "You are a great assistant to infer information from images.\
                             This image is a Minecraft play screen. \
-                            Please guess the biome, time, nearby blocks, and nearby entities from this image.\
+                            My ultimate goal is to create a gold pickaxe.\
+                            Please guess what information you think would be useful to the player \
+                            and give the information by reading that information from the image.\
                             \
                             You must follow the following criteria:\
                             1) You should act as an assistant and tell me useful information to survive or achieve the ultimate goal.\
-                            2) If the image is unclear, please just answer N/A for each category. Do not mention anything else.\
-                            3) Please just inform the fact read from the image.\
+                            2) If the image is unclear, please just answer N/A. Do not mention anything else.\
+                            3) Do not suggest any task. Please just inform the fact read from the image.\
                             \
                             You should only respond in the format as described below:\
                             RESPONSE FORMAT:\
-                            Biome: Please guess the biome from this image.\
-                            Time: Please guess the time from this image. You should respond with either day or night.\
-                            Nearby blocks: Please guess the nearby blocks. You should answer only blocks that can be read from the image.\
-                            Nearby entities (nearest to farthest): Please guess the nearby entities. You should answer only entities that can be read from the image.\
-                            \
-                            Here's an example response:\
-                                Biome: meadow\
-                                Time: day\
-                                Nearby blocks: grass_block, dirt, grass, tall_grass, stone, andesite\
-                                Nearby entities (nearest to farthest): pig, chicken\
-                            "
+                                Reasoning:\
+                                Information: "
+
 
                 },
                 {
@@ -268,12 +262,12 @@ class CurriculumAgent:
         # 訪れたバイオームのリストをテキスト形式で生成
         visited_biomes_text = ", ".join(sorted(self.visited_biomes))
         
-        # # 取得した画像をgpt-4-visionに投げる
-        # image_path = take_screenshot_and_save()
-        # data = create_gpt4vision_answer(image_path)
-        # capture_info = data['choices'][0]['message']['content']
-        # print(image_path + 'の画像から読み取ったデータ')
-        # print(capture_info)
+        # 取得した画像をgpt-4-visionに投げる
+        image_path = take_screenshot_and_save()
+        data = create_gpt4vision_answer(image_path)
+        capture_info = data['choices'][0]['message']['content']
+        print(image_path + 'の画像から読み取ったデータ')
+        print(capture_info)
         
         # # 空の辞書を用意して、各行を解析
         # info_dict = {}
@@ -349,7 +343,8 @@ class CurriculumAgent:
             "chests": chest_observation,
             "completed_tasks": f"Completed tasks so far: {completed_tasks}\n\n",
             "failed_tasks": f"Failed tasks that are too hard: {failed_tasks}\n\n",
-            "visited_biomes": f"Visited Biomes: {visited_biomes_text}\n\n",            
+            "visited_biomes": f"Visited Biomes: {visited_biomes_text}\n\n",     
+            "capture_info": f"Capture info: {capture_info}\n\n"      
         }
         return observation
 
