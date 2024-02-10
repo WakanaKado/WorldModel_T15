@@ -288,10 +288,10 @@ class CurriculumAgent:
         voxels2 = info_dict.get('Nearby blocks')
         nearby_entities2 = info_dict.get('Nearby entities (nearest to farthest)')
         
-        biome3 = None
-        time_of_day3 = None
-        voxels3 = None
-        nearby_entities3 = None
+        # biome3 = None
+        # time_of_day3 = None
+        # voxels3 = None
+        # nearby_entities3 = None
         
         
         
@@ -350,7 +350,6 @@ class CurriculumAgent:
             "failed_tasks": f"Failed tasks that are too hard: {failed_tasks}\n\n",
             "visited_biomes": f"Visited Biomes: {visited_biomes_text}\n\n",
         }
-        return observation
         return observation
 
     def render_human_message(self, *, events, chest_observation):
