@@ -75,27 +75,20 @@ def create_gpt4vision_answer(image_path):
                 {
                 "type": "text",
                 "text": "You are a great assistant to infer information from images.\
-                    This image is a Minecraft play screen. \
-                    Please guess the biome, time, nearby blocks, and nearby entities from this image.\
-                    \
-                    You must follow the following criteria:\
-                    1) You should act as an assistant and tell me useful information to survive or achieve the ultimate goal.\
-                    2) If the image is unclear, please just answer N/A for each category. Do not mention anything else.\
-                    3) Please just inform the fact read from the image.\
-                    \
-                    You should only respond in the format as described below:\
-                    RESPONSE FORMAT:\
-                        Biome: Please guess the biome from this image.\
-                        Time: Please guess the time from this image. You should respond with either day or night.\
-                        Nearby blocks: Please guess the nearby blocks as many as possible. You should answer only blocks that can be read from the image.\
-                        Nearby entities (nearest to farthest): Please guess the nearby entities as many as possible. You should answer only entities that can be read from the image.\
-                    \
-                    Here's an example response:\
-                        Biome: meadow\
-                        Time: day\
-                        Nearby blocks: grass_block, dirt, grass, tall_grass, stone, andesite\
-                        Nearby entities (nearest to farthest): pig, chicken\
-                    "
+                            This image is a Minecraft play screen. \
+                            My ultimate goal is to create a gold pickaxe.\
+                            Please guess what information you think would be useful to the player \
+                            and give the information by reading that information from the image.\
+                            \
+                            You must follow the following criteria:\
+                            1) You should act as an assistant and tell me useful information to survive or achieve the ultimate goal.\
+                            2) If the image is unclear, please just answer N/A. Do not mention anything else.\
+                            3) Do not suggest any task. Please just inform the fact read from the image.\
+                            \
+                            You should only respond in the format as described below:\
+                            RESPONSE FORMAT:\
+                                Reasoning:\
+                                Information: "
                 },
                 {
                 "type": "image_url",
@@ -271,22 +264,22 @@ class CurriculumAgent:
         image_path = take_screenshot_and_save()
         data = create_gpt4vision_answer(image_path)
         capture_info = data['choices'][0]['message']['content']
-        print(image_path + 'の画像から読み取ったデータ')
+        print('使用しないが'+ image_path + 'の画像から読み取ったデータ')
         print(capture_info)
         
-        # 空の辞書を用意して、各行を解析
-        info_dict = {}
-        for line in capture_info.strip().split('\n'):
-            # コロン(:)でキーと値を分割
-            key, value = line.split(':', 1)
-            # 辞書にキーと値を格納
-            info_dict[key.strip()] = value.strip()
+        # # 空の辞書を用意して、各行を解析
+        # info_dict = {}
+        # for line in capture_info.strip().split('\n'):
+        #     # コロン(:)でキーと値を分割
+        #     key, value = line.split(':', 1)
+        #     # 辞書にキーと値を格納
+        #     info_dict[key.strip()] = value.strip()
 
-        # 辞書から必要な情報を取り出す
-        biome2 = info_dict.get('Biome')
-        time_of_day2 = info_dict.get('Time')
-        voxels2 = info_dict.get('Nearby blocks')
-        nearby_entities2 = info_dict.get('Nearby entities (nearest to farthest)')
+        # # 辞書から必要な情報を取り出す
+        # biome2 = info_dict.get('Biome')
+        # time_of_day2 = info_dict.get('Time')
+        # voxels2 = info_dict.get('Nearby blocks')
+        # nearby_entities2 = info_dict.get('Nearby entities (nearest to farthest)')
         
         # biome3 = None
         # time_of_day3 = None
