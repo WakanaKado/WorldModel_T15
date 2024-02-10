@@ -89,8 +89,6 @@ def create_gpt4vision_answer(image_path):
                             RESPONSE FORMAT:\
                                 Reasoning:\
                                 Information: "
-
-
                 },
                 {
                 "type": "image_url",
@@ -266,22 +264,22 @@ class CurriculumAgent:
         image_path = take_screenshot_and_save()
         data = create_gpt4vision_answer(image_path)
         capture_info = data['choices'][0]['message']['content']
-        print(image_path + 'の画像から読み取ったデータ')
+        print('使用しないが'+ image_path + 'の画像から読み取ったデータ')
         print(capture_info)
         
-        # 空の辞書を用意して、各行を解析
-        info_dict = {}
-        for line in capture_info.strip().split('\n'):
-            # コロン(:)でキーと値を分割
-            key, value = line.split(':', 1)
-            # 辞書にキーと値を格納
-            info_dict[key.strip()] = value.strip()
+        # # 空の辞書を用意して、各行を解析
+        # info_dict = {}
+        # for line in capture_info.strip().split('\n'):
+        #     # コロン(:)でキーと値を分割
+        #     key, value = line.split(':', 1)
+        #     # 辞書にキーと値を格納
+        #     info_dict[key.strip()] = value.strip()
 
-        # 辞書から必要な情報を取り出す
-        biome2 = info_dict.get('Biome')
-        time_of_day2 = info_dict.get('Time')
-        voxels2 = info_dict.get('Nearby blocks')
-        nearby_entities2 = info_dict.get('Nearby entities (nearest to farthest)')
+        # # 辞書から必要な情報を取り出す
+        # biome2 = info_dict.get('Biome')
+        # time_of_day2 = info_dict.get('Time')
+        # voxels2 = info_dict.get('Nearby blocks')
+        # nearby_entities2 = info_dict.get('Nearby entities (nearest to farthest)')
         
         # biome3 = None
         # time_of_day3 = None
@@ -330,12 +328,12 @@ class CurriculumAgent:
 
         observation = {
             "context": "",
-            "biome": f"Biome: {biome2}\n\n",
-            "time": f"Time: {time_of_day2}\n\n",
+            "biome": f"Biome: {biome}\n\n",
+            "time": f"Time: {time_of_day}\n\n",
             "nearby_blocks": f"Nearby blocks: {', '.join(voxels) if voxels else 'None'}\n\n",
-            "nearby_blocks": f"Nearby blocks: {voxels2}\n\n",
+            "nearby_blocks": f"Nearby blocks: {voxels}\n\n",
             "other_blocks": f"Other blocks that are recently seen: {other_blocks}\n\n",
-            "nearby_entities": f"Nearby entities: {nearby_entities2}\n\n",
+            "nearby_entities": f"Nearby entities: {nearby_entities}\n\n",
             "health": f"Health: {health:.1f}/20\n\n",
             "hunger": f"Hunger: {hunger:.1f}/20\n\n",
             "position": f"Position: x={position['x']:.1f}, y={position['y']:.1f}, z={position['z']:.1f}\n\n",
@@ -435,8 +433,8 @@ class CurriculumAgent:
         ]
 
         if self.mode == "auto":
-            self.propose_next_ai_task2(messages=messages2, max_retries=max_retries)
-            return self.propose_next_ai_task(messages=messages, max_retries=max_retries)
+            self.propose_next_ai_task2(messages=messages, max_retries=max_retries)
+            return self.propose_next_ai_task(messages=messages2, max_retries=max_retries)
         elif self.mode == "manual":
             return self.propose_next_manual_task()
         else:
@@ -446,7 +444,7 @@ class CurriculumAgent:
         if max_retries == 0:
             raise RuntimeError("Max retries reached, failed to propose ai task.")
         curriculum = self.llm(messages).content
-        print(f"\033[31m****Curriculum Agent ai message****\n{curriculum}\033[0m")
+        print(f"\033[31m****Curriculum Agent ai message of virtual world model****\n{curriculum}\033[0m")
         try:
             response = self.parse_ai_message(curriculum)
             assert "next_task" in response
@@ -466,7 +464,7 @@ class CurriculumAgent:
         if max_retries == 0:
             raise RuntimeError("Max retries reached, failed to propose ai task.")
         curriculum2 = self.llm(messages).content
-        print(f"\033[31m****Curriculum Agent ai message of virtual world model****\n{curriculum2}\033[0m")
+        print(f"\033[31m****Curriculum Agent ai message****\n{curriculum2}\033[0m")
         
         
 
