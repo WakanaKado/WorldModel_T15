@@ -260,12 +260,12 @@ class CurriculumAgent:
         # 訪れたバイオームのリストをテキスト形式で生成
         visited_biomes_text = ", ".join(sorted(self.visited_biomes))
         
-        # 取得した画像をgpt-4-visionに投げる
-        image_path = take_screenshot_and_save()
-        data = create_gpt4vision_answer(image_path)
-        capture_info = data['choices'][0]['message']['content']
-        print('使用しないが'+ image_path + 'の画像から読み取ったデータ')
-        print(capture_info)
+        ## 取得した画像をgpt-4-visionに投げる
+        #image_path = take_screenshot_and_save()
+        #data = create_gpt4vision_answer(image_path)
+        #capture_info = data['choices'][0]['message']['content']
+        #print('使用しないが'+ image_path + 'の画像から読み取ったデータ')
+        #print(capture_info)
         
         # # 空の辞書を用意して、各行を解析
         # info_dict = {}
